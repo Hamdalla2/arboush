@@ -21,31 +21,31 @@ export default function Login() {
                 localStorage.setItem('user', JSON.stringify(data.user));
                 navigate('/');
             } else {
-                setError(data.message || 'Login failed');
+                setError(data.message || 'فشل تسجيل الدخول');
             }
         } catch (err) {
-            setError('Network error');
+            setError('خطأ في الشبكة');
         }
     };
 
     return (
-        <div className="auth-container glass-panel">
-            <h2 style={{ textAlign: 'center', marginBottom: '30px', color: 'var(--text-light)', fontSize: '2rem' }}>Welcome Back</h2>
+        <div className="auth-container glass-panel" dir="rtl">
+            <h2 style={{ textAlign: 'center', marginBottom: '30px', color: 'var(--text-light)', fontSize: '2rem' }}>مرحباً بعودتك</h2>
             {error && <div style={{ color: 'var(--error)', marginBottom: '15px', textAlign: 'center' }}>{error}</div>}
             <form onSubmit={handleLogin}>
                 <div className="form-group">
-                    <label className="form-label">WhatsApp Number</label>
+                    <label className="form-label">رقم الواتساب</label>
                     <input
                         type="text"
                         className="form-input"
                         value={whatsapp}
                         onChange={e => setWhatsapp(e.target.value)}
-                        placeholder="e.g. 1234567890"
+                        placeholder="مثال: 1234567890"
                         required
                     />
                 </div>
                 <div className="form-group">
-                    <label className="form-label">Password</label>
+                    <label className="form-label">كلمة المرور</label>
                     <input
                         type="password"
                         className="form-input"
@@ -54,10 +54,10 @@ export default function Login() {
                         required
                     />
                 </div>
-                <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '10px' }}>Sign In</button>
+                <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '10px' }}>تسجيل الدخول</button>
             </form>
             <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                Don't have an account? <Link to="/register" style={{ color: 'var(--primary)' }}>Sign up</Link>
+                ليس لديك حساب؟ <Link to="/register" style={{ color: 'var(--primary)' }}>سجل الآن</Link>
             </div>
         </div>
     );

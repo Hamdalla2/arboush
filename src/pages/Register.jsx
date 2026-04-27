@@ -22,42 +22,42 @@ export default function Register() {
                 localStorage.setItem('user', JSON.stringify(data.user));
                 navigate('/');
             } else {
-                setError(data.message || 'Registration failed');
+                setError(data.message || 'فشل إنشاء الحساب');
             }
         } catch (err) {
-            setError('Network error');
+            setError('خطأ في الشبكة');
         }
     };
 
     return (
-        <div className="auth-container glass-panel">
-            <h2 style={{ textAlign: 'center', marginBottom: '30px', color: 'var(--text-light)', fontSize: '2rem' }}>Create Account</h2>
+        <div className="auth-container glass-panel" dir="rtl">
+            <h2 style={{ textAlign: 'center', marginBottom: '30px', color: 'var(--text-light)', fontSize: '2rem' }}>إنشاء حساب جديـد</h2>
             {error && <div style={{ color: 'var(--error)', marginBottom: '15px', textAlign: 'center' }}>{error}</div>}
             <form onSubmit={handleRegister}>
                 <div className="form-group">
-                    <label className="form-label">Full Name</label>
+                    <label className="form-label">الاسم الكامل</label>
                     <input type="text" name="name" className="form-input" onChange={handleChange} required />
                 </div>
                 <div className="form-group">
-                    <label className="form-label">WhatsApp Number</label>
-                    <input type="text" name="whatsapp" className="form-input" placeholder="e.g. 1234567890" onChange={handleChange} required />
+                    <label className="form-label">رقم الواتساب</label>
+                    <input type="text" name="whatsapp" className="form-input" placeholder="مثال: 1234567890" onChange={handleChange} required />
                 </div>
                 <div className="form-group">
-                    <label className="form-label">Shipping Address</label>
+                    <label className="form-label">عنوان التوصيل</label>
                     <textarea name="address" className="form-textarea" rows="2" onChange={handleChange} required></textarea>
                 </div>
                 <div className="form-group">
-                    <label className="form-label">Password</label>
+                    <label className="form-label">كلمة المرور</label>
                     <input type="password" name="password" className="form-input" onChange={handleChange} required />
                 </div>
                 <div className="form-group">
-                    <label className="form-label" style={{ opacity: 0.5, fontSize: '0.8rem' }}>Admin Code (Optional)</label>
-                    <input type="password" name="code" className="form-input" onChange={handleChange} placeholder="Leave blank normally" />
+                    <label className="form-label" style={{ opacity: 0.5, fontSize: '0.8rem' }}>كود الإدارة (اختياري)</label>
+                    <input type="password" name="code" className="form-input" onChange={handleChange} placeholder="اتركه فارغاً بالوضع الطبيعي" />
                 </div>
-                <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '10px' }}>Sign Up</button>
+                <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '10px' }}>تسجيل</button>
             </form>
             <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                Already have an account? <Link to="/login" style={{ color: 'var(--primary)' }}>Log in</Link>
+                لديك حساب بالفعل؟ <Link to="/login" style={{ color: 'var(--primary)' }}>تسجيل الدخول</Link>
             </div>
         </div>
     );

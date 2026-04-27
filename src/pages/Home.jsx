@@ -20,16 +20,16 @@ export default function Home() {
     }, []);
 
     return (
-        <div>
+        <div dir="rtl">
             <div className="hero">
-                <h1>Welcome to <span>Sultan Store</span></h1>
-                <p>Premium exclusive products selected just for you. Sign in to place orders via WhatsApp.</p>
+                <h1>مرحبا بكم في <span>متجر سلطان</span></h1>
+                <p>منتجات حصرية وفاخرة مختارة خصيصاً لك. قم بتسجيل الدخول للطلب عبر الواتساب.</p>
             </div>
 
             {loading ? (
-                <div className="empty-state">Loading products...</div>
+                <div className="empty-state">جاري تحميل المنتجات...</div>
             ) : products.length === 0 ? (
-                <div className="empty-state">No products available yet.</div>
+                <div className="empty-state">لا توجد منتجات متاحة حالياً.</div>
             ) : (
                 <div className="products-grid">
                     {products.map(p => (
@@ -45,7 +45,7 @@ export default function Home() {
                                 <h3 className="product-title">{p.name}</h3>
                                 <p className="product-desc">{p.description.length > 80 ? p.description.substring(0, 80) + '...' : p.description}</p>
                                 <div className="product-price">${p.price?.toFixed(2)}</div>
-                                <Link to={`/product/${p._id}`} className="btn btn-primary" style={{ width: '100%' }}>View Details</Link>
+                                <Link to={`/product/${p._id}`} className="btn btn-primary" style={{ width: '100%' }}>عرض التفاصيل</Link>
                             </div>
                         </div>
                     ))}

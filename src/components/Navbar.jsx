@@ -13,8 +13,8 @@ export default function Navbar() {
     };
 
     return (
-        <nav className="navbar">
-            <Link to="/" className="brand">SULTAN<span style={{ color: '#fff' }}>STORE</span></Link>
+        <nav className="navbar" dir="rtl">
+            <Link to="/" className="brand">متجر <span style={{ color: '#fff' }}>سلطان</span></Link>
             <div className="nav-links">
                 {token ? (
                     <>
@@ -23,17 +23,17 @@ export default function Navbar() {
                         </span>
                         {user?.role === 'admin' && (
                             <Link to="/admin" className="btn btn-secondary" style={{ padding: '8px 16px', fontSize: '0.9rem' }}>
-                                <PlusCircle size={16} /> Admin
+                                <PlusCircle size={16} /> لوحة التحكم
                             </Link>
                         )}
                         <button onClick={handleLogout} className="btn btn-secondary" style={{ padding: '8px 16px', fontSize: '0.9rem' }}>
-                            <LogOut size={16} /> Logout
+                            <LogOut size={16} /> تسجيل الخروج
                         </button>
                     </>
                 ) : (
                     <>
-                        <Link to="/login" className="btn btn-secondary" style={{ padding: '8px 16px' }}>Login</Link>
-                        <Link to="/register" className="btn btn-primary" style={{ padding: '8px 16px' }}>Sign Up</Link>
+                        <Link to="/login" className="btn btn-secondary" style={{ padding: '8px 16px' }}>تسجيل الدخول</Link>
+                        <Link to="/register" className="btn btn-primary" style={{ padding: '8px 16px' }}>حساب جديد</Link>
                     </>
                 )}
             </div>
