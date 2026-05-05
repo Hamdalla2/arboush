@@ -76,6 +76,11 @@ export default function Product() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                             <div style={{ color: 'var(--primary)', fontSize: '2rem', fontWeight: '700' }}>
                                 ${product.price?.toFixed(2)}
+                                {product.stock > 0 && (
+                                    <span style={{ fontSize: '0.9rem', color: 'var(--text-main)', marginRight: '15px', fontWeight: 'normal', opacity: 0.8 }}>
+                                        (متوفر: {product.stock})
+                                    </span>
+                                )}
                             </div>
                             {product.type && (
                                 <span style={{ background: 'rgba(102, 252, 241, 0.1)', color: 'var(--primary)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.9rem' }}>
@@ -95,7 +100,11 @@ export default function Product() {
                         )}
 
                         <div style={{ marginTop: 'auto' }}>
-                            {user ? (
+                            {product.stock <= 0 ? (
+                                <div style={{ textAlign: 'center', padding: '16px', background: 'rgba(242, 95, 92, 0.1)', border: '1px solid var(--error)', borderRadius: 'var(--radius)', color: 'var(--error)', fontSize: '1.2rem', fontWeight: 'bold' }}>
+                                    هذا المنتج غير متوفر حالياً
+                                </div>
+                            ) : user ? (
                                 <button onClick={handleBuy} className="btn btn-primary" style={{ width: '100%', fontSize: '1.2rem', padding: '16px' }}>
                                     <MessageCircle size={24} /> الشراء عبر الواتساب
                                 </button>

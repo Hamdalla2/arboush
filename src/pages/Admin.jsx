@@ -6,7 +6,7 @@ export default function Admin() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
-    const [formData, setFormData] = useState({ _id: '', name: '', description: '', price: '', imageUrl: '', image: '', images: '', details: '', type: '' });
+    const [formData, setFormData] = useState({ _id: '', name: '', description: '', price: '', imageUrl: '', image: '', images: '', details: '', type: '', stock: '' });
     const [uploading, setUploading] = useState(false);
 
     const navigate = useNavigate();
@@ -101,6 +101,7 @@ export default function Admin() {
         const sendData = { ...formData };
         if (isNew) delete sendData._id;
         if (sendData.price) sendData.price = parseFloat(sendData.price);
+        if (sendData.stock) sendData.stock = parseInt(sendData.stock);
 
         if (typeof sendData.images === 'string') {
             sendData.images = sendData.images.split(',').map(s => s.trim()).filter(Boolean);
@@ -144,9 +145,9 @@ export default function Admin() {
 
     const openForm = (product = null) => {
         if (product) {
-            setFormData({ ...product, images: Array.isArray(product.images) ? product.images.join(', ') : '' });
+            setFormData({ ...product, images: Array.isArray(product.images) ? product.images.join(', ') : '', stock: product.stock || 0 });
         } else {
-            setFormData({ _id: '', name: '', description: '', price: '', imageUrl: '', image: '', images: '', details: '', type: '' });
+            setFormData({ _id: '', name: '', description: '', price: '', imageUrl: '', image: '', images: '', details: '', type: '', stock: '' });
         }
         setShowForm(true);
     };
@@ -178,9 +179,15 @@ export default function Admin() {
                             </div>
                         </div>
 
-                        <div className="form-group">
-                            <label className="form-label">نوع المنتج (Type)</label>
-                            <input type="text" name="type" className="form-input" value={formData.type || ''} onChange={handleChange} placeholder="مثال: عطور، ملابس، ساعات..." />
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
+                            <div className="form-group">
+                                <label className="form-label">نوع المنتج (Type)</label>
+                                <input type="text" name="type" className="form-input" value={formData.type || ''} onChange={handleChange} placeholder="مثال: عطور، ملابس، ساعات..." />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">الكمية المتوفرة</label>
+                                <input type="number" name="stock" className="form-input" value={formData.stock} onChange={handleChange} placeholder="الكمية المتاحة" />
+                            </div>
                         </div>
 
                         <div className="form-group" style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
@@ -225,6 +232,7 @@ export default function Admin() {
                             <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
                                 <th style={{ padding: '15px' }}>المنتج</th>
                                 <th style={{ padding: '15px' }}>السعر</th>
+                                <th style={{ padding: '15px' }}>الكمية</th>
                                 <th style={{ padding: '15px' }}>تاريخ الإضافة</th>
                                 <th style={{ padding: '15px', textAlign: 'left' }}>الإجراءات</th>
                             </tr>
@@ -237,6 +245,7 @@ export default function Admin() {
                                         <span style={{ fontWeight: '500', color: 'var(--text-light)' }}>{p.name}</span>
                                     </td>
                                     <td style={{ padding: '15px', color: 'var(--primary)' }}>${p.price.toFixed(2)}</td>
+                                    <td style={{ padding: '15px', color: 'var(--text-main)' }}>{p.stock || 0}</td>
                                     <td style={{ padding: '15px', color: 'var(--text-main)', fontSize: '0.9rem' }}>{new Date(p.createdAt).toLocaleDateString()}</td>
                                     <td style={{ padding: '15px', textAlign: 'left' }}>
                                         <button onClick={() => openForm(p)} className="btn btn-secondary" style={{ padding: '6px 12px', marginLeft: '10px' }}><Edit2 size={14} /> تعديل</button>

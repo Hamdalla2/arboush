@@ -70,11 +70,16 @@ export default function Home() {
             ) : (
                 <div className="products-grid">
                     {filteredProducts.map(p => (
-                        <div key={p._id} className="product-card">
+                        <div key={p._id} className="product-card" style={{ position: 'relative' }}>
+                            {p.stock <= 0 && (
+                                <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'var(--error)', color: 'white', padding: '4px 10px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold', zIndex: 2 }}>
+                                    نفذت الكمية
+                                </div>
+                            )}
                             {p.image || p.imageUrl || (p.images && p.images.length > 0) ? (
-                                <img src={p.image || p.imageUrl || p.images[0]} alt={p.name} className="product-img" />
+                                <img src={p.image || p.imageUrl || p.images[0]} alt={p.name} className="product-img" style={{ opacity: p.stock <= 0 ? 0.6 : 1 }} />
                             ) : (
-                                <div className="product-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#66fcf1' }}>
+                                <div className="product-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#66fcf1', opacity: p.stock <= 0 ? 0.6 : 1 }}>
                                     <ShoppingBag size={48} opacity={0.5} />
                                 </div>
                             )}

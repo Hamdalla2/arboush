@@ -11,6 +11,7 @@ const productSchema = new mongoose.Schema(
     details: { type: String },
     type: { type: String },
     barcode: { type: String },
+    stock: { type: Number, default: 0 },
   },
   { timestamps: true },
 );
