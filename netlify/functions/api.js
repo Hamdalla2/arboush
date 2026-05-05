@@ -75,8 +75,8 @@ router.post("/auth/register", async (req, res) => {
 router.post("/auth/login", async (req, res) => {
   await connectDB();
   try {
-    const { whatsapp, password } = req.body;
-    const user = await User.findOne({ whatsapp });
+    const { name, password } = req.body;
+    const user = await User.findOne({ name });
     if (!user) return res.status(404).json({ message: "User not found" });
 
     const isMatch = await bcrypt.compare(password, user.password);

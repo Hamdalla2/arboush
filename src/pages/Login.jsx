@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function Login() {
-    const [whatsapp, setWhatsapp] = useState('');
+    const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -13,7 +13,7 @@ export default function Login() {
             const res = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ whatsapp, password })
+                body: JSON.stringify({ name, password })
             });
             const data = await res.json();
             if (res.ok) {
@@ -34,13 +34,13 @@ export default function Login() {
             {error && <div style={{ color: 'var(--error)', marginBottom: '15px', textAlign: 'center' }}>{error}</div>}
             <form onSubmit={handleLogin}>
                 <div className="form-group">
-                    <label className="form-label">رقم الواتساب</label>
+                    <label className="form-label">اسم المستخدم</label>
                     <input
                         type="text"
                         className="form-input"
-                        value={whatsapp}
-                        onChange={e => setWhatsapp(e.target.value)}
-                        placeholder="مثال: 1234567890"
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                        placeholder="مثال: محمد"
                         required
                     />
                 </div>
