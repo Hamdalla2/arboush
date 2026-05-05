@@ -175,9 +175,13 @@ router.get("/products/:id", async (req, res) => {
 router.post("/products", adminAuth, async (req, res) => {
   await connectDB();
   try {
-    const product = await Product.create(req.body);
+    const data = { ...req.body };
+    if (data._id === "" || data._id === null) delete data._id;
+    console.log("Creating product with data:", data);
+    const product = await Product.create(data);
     res.status(201).json(product);
   } catch (err) {
+    console.error("Product creation error:", err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -185,11 +189,14 @@ router.post("/products", adminAuth, async (req, res) => {
 router.put("/products/:id", adminAuth, async (req, res) => {
   await connectDB();
   try {
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    const data = { ...req.body };
+    delete data._id; // Ensure _id is not being updated
+    const product = await Product.findByIdAndUpdate(req.params.id, data, {
       new: true,
     });
     res.json(product);
   } catch (err) {
+    console.error("Product update error:", err);
     res.status(500).json({ message: err.message });
   }
 });

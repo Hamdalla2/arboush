@@ -94,16 +94,20 @@ export default function Admin() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const url = formData._id ? `/api/products/${formData._id}` : '/api/products';
-        const method = formData._id ? 'PUT' : 'POST';
+        const isNew = !formData._id;
+        const url = isNew ? '/api/products' : `/api/products/${formData._id}`;
+        const method = isNew ? 'POST' : 'PUT';
 
         const sendData = { ...formData };
+        if (isNew) delete sendData._id;
+        if (sendData.price) sendData.price = parseFloat(sendData.price);
+
         if (typeof sendData.images === 'string') {
             sendData.images = sendData.images.split(',').map(s => s.trim()).filter(Boolean);
         }
 
         try {
-            await fetch(url, {
+            const res = await fetch(url, {
                 method,
                 headers: {
                     'Content-Type': 'application/json',
@@ -111,10 +115,17 @@ export default function Admin() {
                 },
                 body: JSON.stringify(sendData)
             });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || 'فشلت العملية');
+            }
+
             fetchProducts();
             setShowForm(false);
         } catch (err) {
             console.error(err);
+            alert('حدث خطأ: ' + err.message);
         }
     };
 
