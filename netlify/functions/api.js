@@ -1,3 +1,5 @@
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import bcrypt from "bcryptjs";
 import express from "express";
 import jwt from "jsonwebtoken";
@@ -10,6 +12,15 @@ const app = express();
 app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey123";
+
+const s3Client = new S3Client({
+  region: "auto",
+  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+  },
+});
 
 const auth = async (req, res, next) => {
   try {
@@ -38,6 +49,32 @@ const adminAuth = async (req, res, next) => {
 };
 
 const router = express.Router();
+
+router.post("/upload/presigned-url", adminAuth, async (req, res) => {
+  try {
+    const { fileName, fileType } = req.body;
+    if (!fileName || !fileType) {
+      return res
+        .status(400)
+        .json({ message: "File name and type are required" });
+    }
+
+    const uniqueFileName = `${Date.now()}-${fileName}`;
+    const command = new PutObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME,
+      Key: uniqueFileName,
+      ContentType: fileType,
+    });
+
+    const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+    const publicUrl = `${process.env.R2_PUBLIC_URL}/${uniqueFileName}`;
+
+    res.json({ url, publicUrl, fileName: uniqueFileName });
+  } catch (err) {
+    console.error("Presigned URL error:", err);
+    res.status(500).json({ message: "Error generating upload URL" });
+  }
+});
 
 router.post("/auth/register", async (req, res) => {
   await connectDB();

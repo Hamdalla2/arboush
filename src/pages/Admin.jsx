@@ -6,7 +6,8 @@ export default function Admin() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
-    const [formData, setFormData] = useState({ _id: '', name: '', description: '', price: '', imageUrl: '', image: '', images: '', details: '' });
+    const [formData, setFormData] = useState({ _id: '', name: '', description: '', price: '', imageUrl: '', image: '', images: '', details: '', type: '' });
+    const [uploading, setUploading] = useState(false);
 
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
@@ -24,7 +25,8 @@ export default function Admin() {
         try {
             const res = await fetch('/api/products');
             const data = await res.json();
-            if (Array.isArray(data)) setProducts(data);
+            const productList = Array.isArray(data) ? data : (data.entries || []);
+            setProducts(productList);
             setLoading(false);
         } catch (err) {
             console.error(err);
@@ -33,6 +35,62 @@ export default function Admin() {
     };
 
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    const handleUpload = async (file) => {
+        if (!file) return null;
+        try {
+            setUploading(true);
+            const res = await fetch('/api/upload/presigned-url', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ fileName: file.name, fileType: file.type, fileSize: file.size })
+            });
+            const { url, publicUrl } = await res.json();
+
+            await fetch(url, {
+                method: 'PUT',
+                body: file,
+                headers: { 'Content-Type': file.type }
+            });
+
+            setUploading(false);
+            return publicUrl;
+        } catch (err) {
+            console.error('Upload failed:', err);
+            setUploading(false);
+            alert('فشل رفع الصورة');
+            return null;
+        }
+    };
+
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const url = await handleUpload(file);
+        if (url) {
+            setFormData(prev => ({ ...prev, image: url, imageUrl: url }));
+        }
+    };
+
+    const handleMultipleFilesChange = async (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+
+        const uploadedUrls = [];
+        for (const file of files) {
+            const url = await handleUpload(file);
+            if (url) uploadedUrls.push(url);
+        }
+
+        if (uploadedUrls.length > 0) {
+            const currentImages = formData.images ? (typeof formData.images === 'string' ? formData.images.split(',').map(s => s.trim()).filter(Boolean) : formData.images) : [];
+            const newImages = [...currentImages, ...uploadedUrls].join(', ');
+            setFormData(prev => ({ ...prev, images: newImages }));
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -77,7 +135,7 @@ export default function Admin() {
         if (product) {
             setFormData({ ...product, images: Array.isArray(product.images) ? product.images.join(', ') : '' });
         } else {
-            setFormData({ _id: '', name: '', description: '', price: '', imageUrl: '', image: '', images: '', details: '' });
+            setFormData({ _id: '', name: '', description: '', price: '', imageUrl: '', image: '', images: '', details: '', type: '' });
         }
         setShowForm(true);
     };
@@ -109,20 +167,30 @@ export default function Admin() {
                             </div>
                         </div>
 
+                        <div className="form-group">
+                            <label className="form-label">نوع المنتج (Type)</label>
+                            <input type="text" name="type" className="form-input" value={formData.type || ''} onChange={handleChange} placeholder="مثال: عطور، ملابس، ساعات..." />
+                        </div>
+
                         <div className="form-group" style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                             <div>
-                                <label className="form-label">رابط الصورة (URL)</label>
-                                <input type="url" name="image" className="form-input" value={formData.image || formData.imageUrl || ''} onChange={e => setFormData({ ...formData, image: e.target.value, imageUrl: e.target.value })} />
+                                <label className="form-label">الصورة الأساسية</label>
+                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                    <input type="file" accept="image/*" onChange={handleFileChange} className="form-input" style={{ flex: 1 }} disabled={uploading} />
+                                    {formData.image && <img src={formData.image} alt="" style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }} />}
+                                </div>
+                                <input type="url" name="image" className="form-input" placeholder="أو رابط URL مباشرة" value={formData.image || formData.imageUrl || ''} onChange={e => setFormData({ ...formData, image: e.target.value, imageUrl: e.target.value })} style={{ marginTop: '10px' }} />
                             </div>
                             <div>
-                                <label className="form-label">صور إضافية (مفصولة بفاصلة)</label>
-                                <textarea name="images" className="form-textarea" rows="1" value={formData.images || ''} onChange={handleChange} placeholder="رابط1, رابط2"></textarea>
+                                <label className="form-label">صور إضافية</label>
+                                <input type="file" accept="image/*" multiple onChange={handleMultipleFilesChange} className="form-input" disabled={uploading} />
+                                <textarea name="images" className="form-textarea" rows="1" value={formData.images || ''} onChange={handleChange} placeholder="روابط الصور مفصولة بفاصلة" style={{ marginTop: '10px' }}></textarea>
                             </div>
                         </div>
 
                         <div className="form-group">
                             <label className="form-label">وصف قصير</label>
-                            <textarea name="description" className="form-textarea" rows="2" value={formData.description} onChange={handleChange} required></textarea>
+                            <textarea name="description" className="form-textarea" rows="2" value={formData.description} onChange={handleChange}></textarea>
                         </div>
 
                         <div className="form-group">
@@ -130,7 +198,9 @@ export default function Admin() {
                             <textarea name="details" className="form-textarea" rows="4" value={formData.details} onChange={handleChange}></textarea>
                         </div>
 
-                        <button type="submit" className="btn btn-primary">حفظ المنتج</button>
+                        <button type="submit" className="btn btn-primary" disabled={uploading}>
+                            {uploading ? 'جاري الرفع...' : 'حفظ المنتج'}
+                        </button>
                     </form>
                 </div>
             )}

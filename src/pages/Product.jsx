@@ -6,6 +6,7 @@ export default function Product() {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [mainImage, setMainImage] = useState(null);
     const [fullscreenImage, setFullscreenImage] = useState(null);
     const user = JSON.parse(localStorage.getItem('user') || 'null');
 
@@ -16,6 +17,7 @@ export default function Product() {
             .then(res => res.json())
             .then(data => {
                 setProduct(data);
+                setMainImage(data.image || data.imageUrl || (data.images && data.images[0]));
                 setLoading(false);
             });
     }, [id]);
@@ -35,23 +37,31 @@ export default function Product() {
 
                 <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap' }}>
                     <div style={{ flex: '1', minWidth: '300px' }}>
-                        {product.image || product.imageUrl || (product.images && product.images.length > 0) ? (
+                        {mainImage || (product.images && product.images.length > 0) ? (
                             <>
                                 <img
-                                    src={product.image || product.imageUrl || product.images[0]}
+                                    src={mainImage || product.images[0]}
                                     alt={product.name}
-                                    style={{ width: '100%', borderRadius: 'var(--radius)', border: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }}
-                                    onClick={() => setFullscreenImage(product.image || product.imageUrl || product.images[0])}
+                                    style={{ width: '100%', aspectRatio: '1/1', borderRadius: 'var(--radius)', border: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer', objectFit: 'cover' }}
+                                    onClick={() => setFullscreenImage(mainImage || product.images[0])}
                                 />
-                                {product.images && product.images.length > 1 && (
-                                    <div style={{ display: 'flex', gap: '10px', marginTop: '10px', overflowX: 'auto' }}>
-                                        {product.images.map((img, i) => (
+                                {product.images && product.images.length > 0 && (
+                                    <div style={{ display: 'flex', gap: '10px', marginTop: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
+                                        {[...new Set([product.image, product.imageUrl, ...product.images].filter(Boolean))].map((img, i) => (
                                             <img
                                                 key={i}
                                                 src={img}
                                                 alt=''
-                                                style={{ width: '80px', height: '80px', borderRadius: 'var(--radius)', border: '1px solid rgba(255,255,255,0.05)', objectFit: 'cover', cursor: 'pointer' }}
-                                                onClick={() => setFullscreenImage(img)}
+                                                style={{
+                                                    width: '80px',
+                                                    height: '80px',
+                                                    borderRadius: 'var(--radius)',
+                                                    border: img === mainImage ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.05)',
+                                                    objectFit: 'cover',
+                                                    cursor: 'pointer',
+                                                    opacity: img === mainImage ? 1 : 0.7
+                                                }}
+                                                onClick={() => setMainImage(img)}
                                             />
                                         ))}
                                     </div>
@@ -63,8 +73,15 @@ export default function Product() {
                     </div>
                     <div style={{ flex: '1', minWidth: '300px', display: 'flex', flexDirection: 'column' }}>
                         <h1 style={{ color: 'var(--text-light)', fontSize: '2.5rem', marginBottom: '10px' }}>{product.name}</h1>
-                        <div style={{ color: 'var(--primary)', fontSize: '2rem', fontWeight: '700', marginBottom: '20px' }}>
-                            ${product.price?.toFixed(2)}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <div style={{ color: 'var(--primary)', fontSize: '2rem', fontWeight: '700' }}>
+                                ${product.price?.toFixed(2)}
+                            </div>
+                            {product.type && (
+                                <span style={{ background: 'rgba(102, 252, 241, 0.1)', color: 'var(--primary)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.9rem' }}>
+                                    {product.type}
+                                </span>
+                            )}
                         </div>
                         <p style={{ color: 'var(--text-main)', lineHeight: '1.6', marginBottom: '30px', fontSize: '1.1rem' }}>
                             {product.description}

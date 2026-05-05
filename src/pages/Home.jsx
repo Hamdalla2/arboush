@@ -5,12 +5,15 @@ import { Link } from 'react-router-dom';
 export default function Home() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [search, setSearch] = useState('');
+    const [selectedType, setSelectedType] = useState('');
 
     useEffect(() => {
         fetch('/api/products')
             .then(res => res.json())
             .then(data => {
-                if (Array.isArray(data)) setProducts(data);
+                const productList = Array.isArray(data) ? data : (data.entries || []);
+                setProducts(productList);
                 setLoading(false);
             })
             .catch(err => {
@@ -19,6 +22,14 @@ export default function Home() {
             });
     }, []);
 
+    const types = [...new Set(products.map(p => p.type).filter(Boolean))];
+
+    const filteredProducts = products.filter(p => {
+        const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
+        const matchesType = !selectedType || p.type === selectedType;
+        return matchesSearch && matchesType;
+    });
+
     return (
         <div dir="rtl">
             <div className="hero">
@@ -26,13 +37,39 @@ export default function Home() {
                 <p>منتجات حصرية وفاخرة مختارة خصيصاً لك. قم بتسجيل الدخول للطلب عبر الواتساب.</p>
             </div>
 
+            <div className="search-filter-container" style={{ display: 'flex', gap: '15px', marginBottom: '30px', flexWrap: 'wrap' }}>
+                <div style={{ flex: 2, minWidth: '200px' }}>
+                    <input
+                        type="text"
+                        placeholder="ابحث عن منتج بالاسم..."
+                        className="form-input"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        style={{ width: '100%' }}
+                    />
+                </div>
+                <div style={{ flex: 1, minWidth: '150px' }}>
+                    <select
+                        className="form-input"
+                        value={selectedType}
+                        onChange={(e) => setSelectedType(e.target.value)}
+                        style={{ width: '100%', height: '100%' }}
+                    >
+                        <option value="">كل الأنواع</option>
+                        {types.map(t => (
+                            <option key={t} value={t}>{t}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+
             {loading ? (
                 <div className="empty-state">جاري تحميل المنتجات...</div>
-            ) : products.length === 0 ? (
-                <div className="empty-state">لا توجد منتجات متاحة حالياً.</div>
+            ) : filteredProducts.length === 0 ? (
+                <div className="empty-state">لا توجد منتجات تطابق بحثك.</div>
             ) : (
                 <div className="products-grid">
-                    {products.map(p => (
+                    {filteredProducts.map(p => (
                         <div key={p._id} className="product-card">
                             {p.image || p.imageUrl || (p.images && p.images.length > 0) ? (
                                 <img src={p.image || p.imageUrl || p.images[0]} alt={p.name} className="product-img" />
