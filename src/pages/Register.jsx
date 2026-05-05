@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function Register() {
-    const [formData, setFormData] = useState({ name: '', whatsapp: '', password: '', address: '', code: '' });
+    const [formData, setFormData] = useState({ name: '', whatsapp: '', password: '', address: '' });
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
@@ -49,10 +49,6 @@ export default function Register() {
                 <div className="form-group">
                     <label className="form-label">كلمة المرور</label>
                     <input type="password" name="password" className="form-input" onChange={handleChange} required />
-                </div>
-                <div className="form-group">
-                    <label className="form-label" style={{ opacity: 0.5, fontSize: '0.8rem' }}>كود الإدارة (اختياري)</label>
-                    <input type="password" name="code" className="form-input" onChange={handleChange} placeholder="اتركه فارغاً بالوضع الطبيعي" />
                 </div>
                 <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '10px' }}>تسجيل</button>
             </form>

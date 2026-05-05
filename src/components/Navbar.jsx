@@ -14,11 +14,14 @@ export default function Navbar() {
 
     return (
         <nav className="navbar" dir="rtl">
-            <Link to="/" className="brand">متجر <span style={{ color: '#fff' }}>سلطان</span></Link>
+            <Link to="/" className="brand">متجر <span style={{ color: '#fff' }}>سولي</span></Link>
             <div className="nav-links">
                 {token ? (
                     <>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--text-main)', fontSize: '0.9rem' }}>
+                        <span
+                            onClick={() => navigate('/change-password')}
+                            style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--text-main)', fontSize: '0.9rem', cursor: 'pointer' }}
+                        >
                             <UserIcon size={16} /> {user?.name}
                         </span>
                         {user?.role === 'admin' && (

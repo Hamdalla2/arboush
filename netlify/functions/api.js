@@ -42,12 +42,12 @@ const router = express.Router();
 router.post("/auth/register", async (req, res) => {
   await connectDB();
   try {
-    const { name, whatsapp, password, address, code } = req.body;
+    const { name, whatsapp, password, address } = req.body;
     const existing = await User.findOne({ whatsapp });
     if (existing)
       return res.status(400).json({ message: "User already exists" });
 
-    const role = code === "sultan-admin-42" ? "admin" : "user";
+    const role = "user";
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({
@@ -63,12 +63,10 @@ router.post("/auth/register", async (req, res) => {
       { expiresIn: "7d" },
     );
 
-    res
-      .status(201)
-      .json({
-        token,
-        user: { id: user._id, name: user.name, role: user.role },
-      });
+    res.status(201).json({
+      token,
+      user: { id: user._id, name: user.name, role: user.role },
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -94,6 +92,27 @@ router.post("/auth/login", async (req, res) => {
       token,
       user: { id: user._id, name: user.name, role: user.role },
     });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.post("/auth/change-password", auth, async (req, res) => {
+  await connectDB();
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch)
+      return res.status(400).json({ message: "Invalid old password" });
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.json({ message: "Password updated successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

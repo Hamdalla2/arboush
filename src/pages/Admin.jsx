@@ -6,7 +6,7 @@ export default function Admin() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
-    const [formData, setFormData] = useState({ _id: '', name: '', description: '', price: '', imageUrl: '', details: '' });
+    const [formData, setFormData] = useState({ _id: '', name: '', description: '', price: '', imageUrl: '', image: '', images: '', details: '' });
 
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
@@ -39,6 +39,11 @@ export default function Admin() {
         const url = formData._id ? `/api/products/${formData._id}` : '/api/products';
         const method = formData._id ? 'PUT' : 'POST';
 
+        const sendData = { ...formData };
+        if (typeof sendData.images === 'string') {
+            sendData.images = sendData.images.split(',').map(s => s.trim()).filter(Boolean);
+        }
+
         try {
             await fetch(url, {
                 method,
@@ -46,7 +51,7 @@ export default function Admin() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(sendData)
             });
             fetchProducts();
             setShowForm(false);
@@ -70,9 +75,9 @@ export default function Admin() {
 
     const openForm = (product = null) => {
         if (product) {
-            setFormData(product);
+            setFormData({ ...product, images: Array.isArray(product.images) ? product.images.join(', ') : '' });
         } else {
-            setFormData({ _id: '', name: '', description: '', price: '', imageUrl: '', details: '' });
+            setFormData({ _id: '', name: '', description: '', price: '', imageUrl: '', image: '', images: '', details: '' });
         }
         setShowForm(true);
     };
@@ -104,9 +109,15 @@ export default function Admin() {
                             </div>
                         </div>
 
-                        <div className="form-group">
-                            <label className="form-label">رابط الصورة (URL)</label>
-                            <input type="url" name="imageUrl" className="form-input" value={formData.imageUrl} onChange={handleChange} />
+                        <div className="form-group" style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                            <div>
+                                <label className="form-label">رابط الصورة (URL)</label>
+                                <input type="url" name="image" className="form-input" value={formData.image || formData.imageUrl || ''} onChange={e => setFormData({ ...formData, image: e.target.value, imageUrl: e.target.value })} />
+                            </div>
+                            <div>
+                                <label className="form-label">صور إضافية (مفصولة بفاصلة)</label>
+                                <textarea name="images" className="form-textarea" rows="1" value={formData.images || ''} onChange={handleChange} placeholder="رابط1, رابط2"></textarea>
+                            </div>
                         </div>
 
                         <div className="form-group">
@@ -141,7 +152,7 @@ export default function Admin() {
                             {products.map(p => (
                                 <tr key={p._id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                                     <td style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                        {p.imageUrl && <img src={p.imageUrl} alt="" style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }} />}
+                                        {(p.image || p.imageUrl || (p.images && p.images[0])) && <img src={p.image || p.imageUrl || p.images[0]} alt="" style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }} />}
                                         <span style={{ fontWeight: '500', color: 'var(--text-light)' }}>{p.name}</span>
                                     </td>
                                     <td style={{ padding: '15px', color: 'var(--primary)' }}>${p.price.toFixed(2)}</td>

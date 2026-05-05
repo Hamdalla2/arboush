@@ -22,7 +22,7 @@ export default function Home() {
     return (
         <div dir="rtl">
             <div className="hero">
-                <h1>مرحبا بكم في <span>متجر سلطان</span></h1>
+                <h1>مرحبا بكم في <span>متجر سولي</span></h1>
                 <p>منتجات حصرية وفاخرة مختارة خصيصاً لك. قم بتسجيل الدخول للطلب عبر الواتساب.</p>
             </div>
 
@@ -34,8 +34,8 @@ export default function Home() {
                 <div className="products-grid">
                     {products.map(p => (
                         <div key={p._id} className="product-card">
-                            {p.imageUrl ? (
-                                <img src={p.imageUrl} alt={p.name} className="product-img" />
+                            {p.image || p.imageUrl || (p.images && p.images.length > 0) ? (
+                                <img src={p.image || p.imageUrl || p.images[0]} alt={p.name} className="product-img" />
                             ) : (
                                 <div className="product-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#66fcf1' }}>
                                     <ShoppingBag size={48} opacity={0.5} />
