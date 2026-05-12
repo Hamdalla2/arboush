@@ -1,5 +1,5 @@
 import { Edit2, Plus, Trash2, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Admin() {
@@ -152,6 +152,62 @@ export default function Admin() {
         setShowForm(true);
     };
 
+    const renderForm = () => (
+        <form onSubmit={handleSubmit}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div className="form-group">
+                    <label className="form-label">الاسم</label>
+                    <input type="text" name="name" className="form-input" value={formData.name} onChange={handleChange} required />
+                </div>
+                <div className="form-group">
+                    <label className="form-label">السعر ($)</label>
+                    <input type="number" step="0.01" name="price" className="form-input" value={formData.price} onChange={handleChange} required />
+                </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
+                <div className="form-group">
+                    <label className="form-label">نوع المنتج (Type)</label>
+                    <input type="text" name="type" className="form-input" value={formData.type || ''} onChange={handleChange} placeholder="مثال: عطور، ملابس، ساعات..." />
+                </div>
+                <div className="form-group">
+                    <label className="form-label">الكمية المتوفرة</label>
+                    <input type="number" name="stock" className="form-input" value={formData.stock} onChange={handleChange} placeholder="الكمية المتاحة" />
+                </div>
+            </div>
+
+            <div className="form-group" style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
+                <div>
+                    <label className="form-label">الصورة الأساسية</label>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <input type="file" accept="image/*" onChange={handleFileChange} className="form-input" style={{ flex: 1 }} disabled={uploading} />
+                        {formData.image && <img src={formData.image} alt="" style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }} />}
+                    </div>
+                    <input type="url" name="image" className="form-input" placeholder="أو رابط URL مباشرة" value={formData.image || formData.imageUrl || ''} onChange={e => setFormData({ ...formData, image: e.target.value, imageUrl: e.target.value })} style={{ marginTop: '10px' }} />
+                </div>
+                <div>
+                    <label className="form-label">صور إضافية</label>
+                    <input type="file" accept="image/*" multiple onChange={handleMultipleFilesChange} className="form-input" disabled={uploading} />
+                    <textarea name="images" className="form-textarea" rows="1" value={formData.images || ''} onChange={handleChange} placeholder="روابط الصور مفصولة بفاصلة" style={{ marginTop: '10px' }}></textarea>
+                </div>
+            </div>
+
+            <div className="form-group">
+                <label className="form-label">وصف قصير</label>
+                <textarea name="description" className="form-textarea" rows="2" value={formData.description} onChange={handleChange}></textarea>
+            </div>
+
+            <div className="form-group">
+                <label className="form-label">التفاصيل / المواصفات</label>
+                <textarea name="details" className="form-textarea" rows="4" value={formData.details} onChange={handleChange}></textarea>
+            </div>
+
+            <button type="submit" className="btn btn-primary" disabled={uploading} style={{ width: '100%', marginTop: '10px' }}>
+                {uploading ? 'جاري الرفع...' : 'حفظ المنتج'}
+            </button>
+        </form>
+    );
+
     if (loading) return <div className="empty-state" dir="rtl">جاري تحميل لوحة التحكم...</div>;
 
     return (
@@ -161,65 +217,13 @@ export default function Admin() {
                 <button onClick={() => openForm()} className="btn btn-primary"><Plus size={18} /> إضافة منتج جديد</button>
             </div>
 
-            {showForm && (
-                <div style={{ background: 'rgba(0,0,0,0.5)', padding: '30px', borderRadius: 'var(--radius)', marginBottom: '40px', border: '1px solid rgba(102, 252, 241, 0.3)' }}>
+            {showForm && !formData._id && (
+                <div style={{ background: 'rgba(0,0,0,0.8)', padding: '30px', borderRadius: 'var(--radius)', marginBottom: '40px', border: '1px solid var(--primary)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                        <h3 style={{ color: 'var(--text-light)', fontSize: '1.5rem' }}>{formData._id ? 'تعديل المنتج' : 'إضافة منتج جديد'}</h3>
+                        <h3 style={{ color: 'var(--text-light)', fontSize: '1.5rem' }}>إضافة منتج جديد</h3>
                         <button onClick={() => setShowForm(false)} style={{ color: 'var(--text-main)', cursor: 'pointer', background: 'none', border: 'none' }}><X size={24} /></button>
                     </div>
-                    <form onSubmit={handleSubmit}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                            <div className="form-group">
-                                <label className="form-label">الاسم</label>
-                                <input type="text" name="name" className="form-input" value={formData.name} onChange={handleChange} required />
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">السعر ($)</label>
-                                <input type="number" step="0.01" name="price" className="form-input" value={formData.price} onChange={handleChange} required />
-                            </div>
-                        </div>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
-                            <div className="form-group">
-                                <label className="form-label">نوع المنتج (Type)</label>
-                                <input type="text" name="type" className="form-input" value={formData.type || ''} onChange={handleChange} placeholder="مثال: عطور، ملابس، ساعات..." />
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">الكمية المتوفرة</label>
-                                <input type="number" name="stock" className="form-input" value={formData.stock} onChange={handleChange} placeholder="الكمية المتاحة" />
-                            </div>
-                        </div>
-
-                        <div className="form-group" style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                            <div>
-                                <label className="form-label">الصورة الأساسية</label>
-                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                    <input type="file" accept="image/*" onChange={handleFileChange} className="form-input" style={{ flex: 1 }} disabled={uploading} />
-                                    {formData.image && <img src={formData.image} alt="" style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }} />}
-                                </div>
-                                <input type="url" name="image" className="form-input" placeholder="أو رابط URL مباشرة" value={formData.image || formData.imageUrl || ''} onChange={e => setFormData({ ...formData, image: e.target.value, imageUrl: e.target.value })} style={{ marginTop: '10px' }} />
-                            </div>
-                            <div>
-                                <label className="form-label">صور إضافية</label>
-                                <input type="file" accept="image/*" multiple onChange={handleMultipleFilesChange} className="form-input" disabled={uploading} />
-                                <textarea name="images" className="form-textarea" rows="1" value={formData.images || ''} onChange={handleChange} placeholder="روابط الصور مفصولة بفاصلة" style={{ marginTop: '10px' }}></textarea>
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <label className="form-label">وصف قصير</label>
-                            <textarea name="description" className="form-textarea" rows="2" value={formData.description} onChange={handleChange}></textarea>
-                        </div>
-
-                        <div className="form-group">
-                            <label className="form-label">التفاصيل / المواصفات</label>
-                            <textarea name="details" className="form-textarea" rows="4" value={formData.details} onChange={handleChange}></textarea>
-                        </div>
-
-                        <button type="submit" className="btn btn-primary" disabled={uploading}>
-                            {uploading ? 'جاري الرفع...' : 'حفظ المنتج'}
-                        </button>
-                    </form>
+                    {renderForm()}
                 </div>
             )}
 
@@ -239,19 +243,32 @@ export default function Admin() {
                         </thead>
                         <tbody>
                             {products.map(p => (
-                                <tr key={p._id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                    <td style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                        {(p.image || p.imageUrl || (p.images && p.images[0])) && <img src={p.image || p.imageUrl || p.images[0]} alt="" style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }} />}
-                                        <span style={{ fontWeight: '500', color: 'var(--text-light)' }}>{p.name}</span>
-                                    </td>
-                                    <td style={{ padding: '15px', color: 'var(--primary)' }}>${p.price.toFixed(2)}</td>
-                                    <td style={{ padding: '15px', color: 'var(--text-main)' }}>{p.stock || 0}</td>
-                                    <td style={{ padding: '15px', color: 'var(--text-main)', fontSize: '0.9rem' }}>{new Date(p.createdAt).toLocaleDateString()}</td>
-                                    <td style={{ padding: '15px', textAlign: 'left' }}>
-                                        <button onClick={() => openForm(p)} className="btn btn-secondary" style={{ padding: '6px 12px', marginLeft: '10px' }}><Edit2 size={14} /> تعديل</button>
-                                        <button onClick={() => handleDelete(p._id)} className="btn btn-secondary" style={{ padding: '6px 12px', background: 'rgba(242, 95, 92, 0.1)', color: 'var(--error)' }}><Trash2 size={14} /> حذف</button>
-                                    </td>
-                                </tr>
+                                <Fragment key={p._id}>
+                                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: formData._id === p._id ? 'rgba(102, 252, 241, 0.05)' : 'transparent' }}>
+                                        <td style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                            {(p.image || p.imageUrl || (p.images && p.images[0])) && <img src={p.image || p.imageUrl || p.images[0]} alt="" style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }} />}
+                                            <span style={{ fontWeight: '500', color: 'var(--text-light)' }}>{p.name}</span>
+                                        </td>
+                                        <td style={{ padding: '15px', color: 'var(--primary)' }}>${p.price.toFixed(2)}</td>
+                                        <td style={{ padding: '15px', color: 'var(--text-main)' }}>{p.stock || 0}</td>
+                                        <td style={{ padding: '15px', color: 'var(--text-main)', fontSize: '0.9rem' }}>{new Date(p.createdAt).toLocaleDateString()}</td>
+                                        <td style={{ padding: '15px', textAlign: 'left' }}>
+                                            <button onClick={() => openForm(p)} className="btn btn-secondary" style={{ padding: '6px 12px', marginLeft: '10px' }}><Edit2 size={14} /> تعديل</button>
+                                            <button onClick={() => handleDelete(p._id)} className="btn btn-secondary" style={{ padding: '6px 12px', background: 'rgba(242, 95, 92, 0.1)', color: 'var(--error)' }}><Trash2 size={14} /> حذف</button>
+                                        </td>
+                                    </tr>
+                                    {showForm && formData._id === p._id && (
+                                        <tr>
+                                            <td colSpan="5" style={{ padding: '20px', background: 'rgba(0,0,0,0.2)' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                                                    <h3 style={{ color: 'var(--text-light)', fontSize: '1.2rem' }}>تعديل المنتج: {p.name}</h3>
+                                                    <button onClick={() => setShowForm(false)} style={{ color: 'var(--text-main)', cursor: 'pointer', background: 'none', border: 'none' }}><X size={20} /></button>
+                                                </div>
+                                                {renderForm()}
+                                            </td>
+                                        </tr>
+                                    )}
+                                </Fragment>
                             ))}
                         </tbody>
                     </table>
