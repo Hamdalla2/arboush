@@ -26,7 +26,8 @@ export default function Product() {
     if (!product) return <div className="empty-state" dir="rtl">المنتج غير موجود</div>;
 
     const handleBuy = () => {
-        const text = `مرحباً سولي، أنا مهتم بشراء: ${product.name} (السعر: $${product.price}). اسمي هو ${user.name}.`;
+        const name = user?.name ? ` اسمي هو ${user.name}.` : '';
+        const text = `مرحباً سولي، أنا مهتم بشراء: ${product.name} (السعر: ${product.price} شيكل).${name}`;
         window.open(`https://wa.me/${SULI_WHATSAPP}?text=${encodeURIComponent(text)}`, '_blank');
     };
 
@@ -75,7 +76,7 @@ export default function Product() {
                         <h1 style={{ color: 'var(--text-light)', fontSize: '2.5rem', marginBottom: '10px' }}>{product.name}</h1>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                             <div style={{ color: 'var(--primary)', fontSize: '2rem', fontWeight: '700' }}>
-                                ${product.price?.toFixed(2)}
+                                {product.price?.toFixed(2)} شيكل
                             </div>
                             {product.type && (
                                 <span style={{ background: 'rgba(102, 252, 241, 0.1)', color: 'var(--primary)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.9rem' }}>
@@ -99,15 +100,10 @@ export default function Product() {
                                 <div style={{ textAlign: 'center', padding: '16px', background: 'rgba(242, 95, 92, 0.1)', border: '1px solid var(--error)', borderRadius: 'var(--radius)', color: 'var(--error)', fontSize: '1.2rem', fontWeight: 'bold' }}>
                                     هذا المنتج غير متوفر حالياً
                                 </div>
-                            ) : user ? (
+                            ) : (
                                 <button onClick={handleBuy} className="btn btn-primary" style={{ width: '100%', fontSize: '1.2rem', padding: '16px' }}>
                                     <MessageCircle size={24} /> الشراء عبر الواتساب
                                 </button>
-                            ) : (
-                                <div style={{ textAlign: 'center', padding: '24px', background: 'rgba(242, 95, 92, 0.05)', border: '1px solid rgba(242, 95, 92, 0.2)', borderRadius: 'var(--radius)' }}>
-                                    <p style={{ color: 'var(--error)', marginBottom: '15px', fontSize: '1.1rem' }}>يجب تسجيل الدخول لإتمام الطلب.</p>
-                                    <Link to="/login" className="btn btn-secondary">تسجيل الدخول للشراء</Link>
-                                </div>
                             )}
                         </div>
                     </div>

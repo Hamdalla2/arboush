@@ -19,6 +19,7 @@
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.11.0",
     "mongoose": "^9.5.0",
+    "netlify": "^26.2.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-router-dom": "^7.14.2",

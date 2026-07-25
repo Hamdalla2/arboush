@@ -1,6 +1,8 @@
-import { ShoppingBag } from 'lucide-react';
+import { MessageCircle, ShoppingBag } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+
+const SULI_WHATSAPP = "972569031313";
 
 export default function Home() {
     const [products, setProducts] = useState([]);
@@ -34,7 +36,7 @@ export default function Home() {
         <div dir="rtl">
             <div className="hero">
                 <h1>مرحبا بكم في <span>متجر سولي</span></h1>
-                <p>منتجات حصرية وفاخرة مختارة خصيصاً لك. قم بتسجيل الدخول للطلب عبر الواتساب.</p>
+                <p>منتجات حصرية وفاخرة مختارة خصيصاً لك. اطلب مباشرة عبر الواتساب.</p>
             </div>
 
             <div className="search-filter-container" style={{ display: 'flex', gap: '15px', marginBottom: '30px', flexWrap: 'wrap' }}>
@@ -86,8 +88,22 @@ export default function Home() {
                             <div className="product-info">
                                 <h3 className="product-title">{p.name}</h3>
                                 <p className="product-desc">{p.description.length > 80 ? p.description.substring(0, 80) + '...' : p.description}</p>
-                                <div className="product-price">${p.price?.toFixed(2)}</div>
-                                <Link to={`/product/${p._id}`} className="btn btn-primary" style={{ width: '100%' }}>عرض التفاصيل</Link>
+                                <div className="product-price">{p.price?.toFixed(2)} شيكل</div>
+                                <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
+                                    <Link to={`/product/${p._id}`} className="btn btn-secondary" style={{ width: '100%' }}>عرض التفاصيل</Link>
+                                    {p.stock > 0 && (
+                                        <button
+                                            className="btn btn-primary"
+                                            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                                            onClick={() => {
+                                                const text = `مرحباً سولي، أنا مهتم بشراء: ${p.name} (السعر: ${p.price} شيكل).`;
+                                                window.open(`https://wa.me/${SULI_WHATSAPP}?text=${encodeURIComponent(text)}`, '_blank');
+                                            }}
+                                        >
+                                            <MessageCircle size={16} /> اطلب عبر واتساب
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     ))}
